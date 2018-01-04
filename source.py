@@ -3,6 +3,7 @@
 # TODO: Improve readability.
 # TODO: Clean up data.
 # TODO: Make algorithm "map-size" agnostic; Replace hard-coded values with a system that responds to the data.
+# TODO: Add arbitration for routes of equal length.
 
 class Settlement:
 	def __init__(self, y_coordinate, x_coordinate, name):  # Because changing the order the data is fed to the class is easier than changing the data itself.
