@@ -1,7 +1,8 @@
 """I'm not proud of it, but it works. I foresee numerous cleanups and rewrites in the future."""
-# TODO: Find an algorithm that results in a 2-connected graph.
+
 # TODO: Improve readability.
-# TODO: Make algorithm "map-size" agnostic; i.e. replace hard-coded values (e.g. "999") with ones that scale based on the inputs.
+# TODO: Clean up data.
+# TODO: Make algorithm "map-size" agnostic; Replace hard-coded values with a system that responds to the data.
 
 class Settlement:
 	def __init__(self, y_coordinate, x_coordinate, name):  # Because changing the order the data is fed to the class is easier than changing the data itself.
