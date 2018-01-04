@@ -22,4 +22,4 @@ A graph theory experiment inspired by Fallout 4's settlement system.
 
 
 
-*(In retrospect, simply doubling up on the number of NPCs along each route would largely have the desired effect.)
+*(In retrospect, simply doubling up on the number of NPCs along each route would have the desired effect.)
