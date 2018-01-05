@@ -1,55 +1,84 @@
-"""I'm not proud of it, but it works. I foresee numerous cleanups and rewrites in the future."""
-
-# TODO: Improve readability.
-# TODO: Clean up data.
-# TODO: Make algorithm "map-size" agnostic; Replace hard-coded values with a system that responds to the data.
+# TODO: Improve readability; Rework matrices into an class/object?
 # TODO: Add arbitration for routes of equal length.
 
+
 class Settlement:
-	def __init__(self, y_coordinate, x_coordinate, name):  # Because changing the order the data is fed to the class is easier than changing the data itself.
+	def __init__(self, name, x_coordinate, y_coordinate):  # Because changing the order the data is fed to the class is easier than changing the data itself.
 		self.name = name
 		self.x = x_coordinate
-		self.y = 99 - y_coordinate  # There was some weirdness with how the data was obtained, resulting in the y-axis being flipped.
+		self.y = y_coordinate
 
 	def calc(self, settlement):
 		if self == settlement:
-			return 999
+			return MAP_DIMENSIONS[0]*MAP_DIMENSIONS[1]
 		else:
 			return int(pow((pow((self.x - settlement.x), 2)+pow((self.y - settlement.y), 2)), 0.5))  # Geometric distance (a**2 + b**2 = c**2)
 
 
-Sanctuary = Settlement(13, 7, "Sanctuary")
-RedRocketTruckStop = Settlement(17, 11, "Red Rocket Truck Stop")
-AbernathyFarm = Settlement(13, 17, "Abernathy Farm")
-SunshineTidingsCoop = Settlement(8, 29, "Sunshine Tidings Co-op")
-StarlightDriveIn = Settlement(30, 21, "Starlight Drive In")
-TenpinesBluff = Settlement(36, 8, "Tenpines Bluff")
-OutpostZimonja = Settlement(42, 2, "Outpost Zimonja")
-GreyGarden = Settlement(25, 39, "GreyGarden")
-Covenant = Settlement(43, 27, "Covenant")
-TaffingtonBoathouse = Settlement(49, 26, "Taffington Boathouse")
-GreentopNursery = Settlement(59, 17, "Greentop Nursery")
-OberlandStation = Settlement(26, 49, "Oberland Station")
-HangmansAlley = Settlement(37, 55, "Hangman's Alley")
-BunkerHill = Settlement(55, 41, "Bunker Hill")
-CountryCrossing = Settlement(64, 33, "Country Crossing")
-FinchFarm = Settlement(71, 26, "Finch Farm")
-TheSlog = Settlement(71, 15, "The Slog")
-CoastalCottage = Settlement(78, 7, "Coastal Cottage")
-BostonAirport = Settlement(69, 48, "Boston Airport")
-NordhagenBeach = Settlement(75, 45, "Nordhagen Beach")
-CroupManor = Settlement(87, 32, "Croup Manor")
-KingsportLighthouse = Settlement(86, 20, "Kingsport Lighthouse")
-EgretToursMarina = Settlement(33, 74, "Egret Tours Marina")
-JamaicaPlain = Settlement(51, 75, "Jamaica Plain")
-TheCastle = Settlement(68, 67, "The Castle")
-SomervillePlace = Settlement(32, 86, "Somerville Place")
-MurkwaterConstructionSite = Settlement(50, 89, "Murkwater Construction Site")
-WarwickHomestead = Settlement(72, 79, "Warwick Homestead")
-SpectacleIsland = Settlement(80, 74, "Spectacle Island")
+def firstlink():
+	"""Finds the two closest settlements"""
+	xmin = MAP_DIMENSIONS[0]
+	ymin = MAP_DIMENSIONS[1]
+	shortest = xmin * ymin
+	for i in range(len(SETTLEMENTS)):
+		for j in range(i + 1, len(SETTLEMENTS)):
+			if 0 < distance_matrix[i][j] < shortest or 0 < distance_matrix[j][i] < shortest:
+				xmin = i
+				ymin = j
+				shortest = distance_matrix[i][j]
+	connection_matrix[xmin][ymin] = 1
+	connection_matrix[ymin][xmin] = 1
+	network.append(xmin)
+	network.append(ymin)
 
 
-settlements = [
+def addlinks():
+	"""Rework network and the connection matrix as an object with this as a method?"""
+	candidates = []
+	for i in network:
+		for j in list(set(range(len(SETTLEMENTS))) - set(network)):  # Clunky
+			if SETTLEMENTS[i].calc(SETTLEMENTS[j]) == min([SETTLEMENTS[i].calc(SETTLEMENTS[j]) for j in list(
+					set(range(len(SETTLEMENTS))) - set(network))]):  # Surely there's a cleaner way to do this?
+				candidates.append([i, j, SETTLEMENTS[i].calc(SETTLEMENTS[j])])
+	for i in candidates:
+		if i[2] == min([j[2] for j in candidates]):
+			network.append(i[1])
+			connection_matrix[i[0]][i[1]] = 1
+			connection_matrix[i[1]][i[0]] = 1
+
+
+Sanctuary = Settlement("Sanctuary", 134.5, 925.5)
+RedRocketTruckStop = Settlement("Red Rocket Truck Stop", 176, 879)
+AbernathyFarm = Settlement("Abernathy Farm", 131, 822)
+SunshineTidingsCoop = Settlement("Sunshine Tidings Co-op", 82, 700)
+StarlightDriveIn = Settlement("Starlight Drive In", 302, 777)
+TenpinesBluff = Settlement("Tenpines Bluff", 361.5, 915.5)
+OutpostZimonja = Settlement("Outpost Zimonja", 423.5, 973.5)
+GreyGarden = Settlement("GreyGarden", 254, 600)
+Covenant = Settlement("Covenant", 438, 723.5)
+TaffingtonBoathouse = Settlement("Taffington Boathouse", 493, 728.5)
+GreentopNursery = Settlement("Greentop Nursery", 595.5, 819)
+OberlandStation = Settlement("Oberland Station", 264, 491)
+HangmansAlley = Settlement("Hangman's Alley", 379, 433.5)
+BunkerHill = Settlement("Bunker Hill", 549.5, 580.5)
+CountryCrossing = Settlement("Country Crossing", 653.75, 640.25)
+FinchFarm = Settlement("Finch Farm", 711.25, 726.25)
+TheSlog = Settlement("The Slog", 715.5, 840)
+CoastalCottage = Settlement("Coastal Cottage", 780, 923)
+BostonAirport = Settlement("Boston Airport", 689.5, 503.5)
+NordhagenBeach = Settlement("Nordhagen Beach", 755.75, 531.75)
+CroupManor = Settlement("Croup Manor", 874, 681.5)
+KingsportLighthouse = Settlement("Kingsport Lighthouse", 868, 789.5)
+EgretToursMarina = Settlement("Egret Tours Marina", 336, 235.5)
+JamaicaPlain = Settlement("Jamaica Plain", 519, 231)
+TheCastle = Settlement("The Castle", 648.5, 307.5)
+SomervillePlace = Settlement("Somerville Place", 325.5, 117.5)
+MurkwaterConstructionSite = Settlement("Murkwater Construction Site", 500.5, 89)
+WarwickHomestead = Settlement("Warwick Homestead", 722.75, 185.75)
+SpectacleIsland = Settlement("Spectacle Island", 801, 241.5)
+
+
+SETTLEMENTS = (
 	AbernathyFarm,
 	BostonAirport,
 	BunkerHill,
@@ -79,72 +108,34 @@ settlements = [
 	TheCastle,
 	TheSlog,
 	WarwickHomestead
-]
+)
 
-
+MAP_DIMENSIONS = [max([i.x for i in SETTLEMENTS]), max([j.y for j in SETTLEMENTS])]
+network = []  # Tracks members of network by their index in the SETTLEMENTS tuple
 connection_matrix = []
 distance_matrix = []
-neighbors = []
-for x in range(len(settlements)):
+for i in range(len(SETTLEMENTS)):
 	row1 = []
 	row2 = []
-	for y in range(len(settlements)):
+	for j in range(len(SETTLEMENTS)):
 		row1.append(0)
-		row2.append(settlements[x].calc(settlements[y]))
+		row2.append(SETTLEMENTS[i].calc(SETTLEMENTS[j]))
 	connection_matrix.append(row1)
-	neighbors.append(row1)
 	distance_matrix.append(row2)
 
 
-def firstlink():
-	xmin = 999
-	ymin = 999
-	shortest = 999
-	for x in range(len(settlements)):
-		for y in range(x+1, len(settlements)):
-			if 0 < distance_matrix[x][y] < shortest or 0 < distance_matrix[y][x] < shortest:
-				xmin = x
-				ymin = y
-				shortest = distance_matrix[x][y]
-	connection_matrix[xmin][ymin] = 1
-	connection_matrix[ymin][xmin] = 1
-
-
 firstlink()
-
-network = []
-for x in range(len(connection_matrix)):
-	for y in range(x+1, len(connection_matrix)):
-		if connection_matrix[x][y] or connection_matrix[y][x] == 1:
-			network.append(x)
-			network.append(y)
-
-
-def addlinks():
-	candidates = []
-	for x in network:
-		for y in list(set(range(len(settlements)))-set(network)):
-			if settlements[x].calc(settlements[y]) == min([settlements[x].calc(settlements[y]) for y in list(set(range(len(settlements)))-set(network))]):  # Surely there's a cleaner way to do this?
-				candidates.append([x, y, settlements[x].calc(settlements[y])])
-	for x in candidates:
-		if x[2] == min([y[2] for y in candidates]):
-			network.append(x[1])
-			connection_matrix[x[0]][x[1]] = 1
-			connection_matrix[x[1]][x[0]] = 1
-
-
-for x in range(len(settlements)-2):
+for i in range(len(SETTLEMENTS)-2):  # 2 less than the sum total, as two have already been placed in the network.
 	addlinks()
 
+for i in connection_matrix:  # The graph, as represented by an edge matrix. Columns/Rows follow the same order as the SETTLEMENTS tuple at the beginning of the script.
+	print(i)
 
-for x in connection_matrix:  # The graph represented by an edge matrix. Columns/Rows follow the same order as the "settlements" list at the beginning of the script.
-	print(x)
-
-for x in range(len(settlements)):  # The graph represent by listing each node, followed all nodess connected to it.
-	row = settlements[x].name
+for i in range(len(SETTLEMENTS)):  # The graph, as represented by listing each settlement followed by all settlements connected to it.
+	row = SETTLEMENTS[i].name
 	row += ":"
-	for y in range(len(connection_matrix[x])):
-		if connection_matrix[x][y] == 1:
+	for j in range(len(connection_matrix[i])):
+		if connection_matrix[i][j] == 1:
 			row += "	"
-			row += settlements[y].name
+			row += SETTLEMENTS[j].name
 	print(row)
