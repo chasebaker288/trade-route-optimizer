@@ -110,7 +110,7 @@ SETTLEMENTS = (
 	WarwickHomestead
 )
 
-MAP_DIMENSIONS = [max([i.x for i in SETTLEMENTS]), max([j.y for j in SETTLEMENTS])]
+MAP_DIMENSIONS = (max([i.x for i in SETTLEMENTS]), max([j.y for j in SETTLEMENTS]))
 network = []  # Tracks members of network by their index in the SETTLEMENTS tuple
 connection_matrix = []
 distance_matrix = []
