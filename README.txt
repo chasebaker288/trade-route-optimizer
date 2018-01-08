@@ -6,11 +6,9 @@ A graph theory experiment inspired by Fallout 4's settlement system.
 𝑪𝑹𝑰𝑻𝑬𝑹𝑰𝑨:
 • All settlements should form a single, connected graph. (DONE)
 	(There are no penalties for having a resource pass through multiple settlements.)
-• Route lengths should be minimized, both individually and cumulatively. (DONE*)
-• Total number of edges should be minimized. (DONE*)
+• Route lengths should be minimized, both individually and cumulatively. (DONE)
+• Total number of edges should be minimized. (DONE)
 	(Longer routes mean a higher risk of NPCs having trouble moving between locations.)
-• BONUS: The graph should be 2-connected. (DONE?**)
-	(Simple redundancy failsafe.)
 
 
 
@@ -21,5 +19,5 @@ A graph theory experiment inspired by Fallout 4's settlement system.
 
 
 
-* The algorithm orignally resulted in 3 cycles, rather than a simple tree. This was fixed by using more detailed data, though the issue will show up again if two or more locations are equidistant from the closest settlement in the network.
-** In retrospect, simply doubling up on the number of NPCs along each route would have the desired effect.
+𝑨𝑭𝑻𝑬𝑹𝑻𝑯𝑶𝑼𝑮𝑯𝑻𝑺:
+1. The algorithm orignally resulted in 3 cycles, rather than a simple tree. This was fixed by using more detailed data, though the issue will show up again if two or more locations are equidistant from the closest settlement in the network.
