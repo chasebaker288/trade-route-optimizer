@@ -28,21 +28,20 @@ def firstlink():
 				shortest = distance_matrix[i][j]
 	connection_matrix[xmin][ymin] = 1
 	connection_matrix[ymin][xmin] = 1
-	network.append(xmin)
-	network.append(ymin)
+	trade_network.append(xmin)
+	trade_network.append(ymin)
 
 
 def addlinks():
-	"""Rework network and the connection matrix as an object with this as a method?"""
+	"""Rework trade network and the connection matrix as an object with this as a method?"""
 	candidates = []
-	for i in network:
-		for j in list(set(range(len(SETTLEMENTS))) - set(network)):  # Clunky
-			if SETTLEMENTS[i].calc(SETTLEMENTS[j]) == min([SETTLEMENTS[i].calc(SETTLEMENTS[j]) for j in list(
-					set(range(len(SETTLEMENTS))) - set(network))]):  # Surely there's a cleaner way to do this?
-				candidates.append([i, j, SETTLEMENTS[i].calc(SETTLEMENTS[j])])
+	for i in trade_network:
+		for j in list(set(range(len(SETTLEMENTS))) - set(trade_network)):  # Clunky
+			if distance_matrix[i][j] == min([distance_matrix[i][j] for j in list(set(range(len(SETTLEMENTS))) - set(trade_network))]):  # Surely there's a cleaner way to do this?
+				candidates.append([i, j, distance_matrix[i][j]])
 	for i in candidates:
 		if i[2] == min([j[2] for j in candidates]):
-			network.append(i[1])
+			trade_network.append(i[1])
 			connection_matrix[i[0]][i[1]] = 1
 			connection_matrix[i[1]][i[0]] = 1
 
@@ -111,10 +110,10 @@ SETTLEMENTS = (
 )
 
 MAP_DIMENSIONS = (max([i.x for i in SETTLEMENTS]), max([j.y for j in SETTLEMENTS]))
-network = []  # Tracks members of network by their index in the SETTLEMENTS tuple
+trade_network = []  # Tracks members of network by their index in the SETTLEMENTS tuple
 connection_matrix = []
 distance_matrix = []
-for i in range(len(SETTLEMENTS)):
+for i in range(len(SETTLEMENTS)):  # Builds connection and distance matrices
 	row1 = []
 	row2 = []
 	for j in range(len(SETTLEMENTS)):
@@ -125,7 +124,7 @@ for i in range(len(SETTLEMENTS)):
 
 
 firstlink()
-for i in range(len(SETTLEMENTS)-2):  # 2 less than the sum total, as two have already been placed in the network.
+for i in range(len(SETTLEMENTS)-2):  # 2 less than the total number off settlements, as two have already been placed in the network.
 	addlinks()
 
 for i in connection_matrix:  # The graph, as represented by an edge matrix. Columns/Rows follow the same order as the SETTLEMENTS tuple at the beginning of the script.
