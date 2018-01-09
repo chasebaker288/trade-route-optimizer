@@ -1,7 +1,3 @@
-# TODO: Improve readability; Rework matrices into an class/object?
-# TODO: Add arbitration for routes of equal length.
-
-
 class Settlement:
 	def __init__(self, name, x_coordinate, y_coordinate):  # Because changing the order the data is fed to the class is easier than changing the data itself.
 		self.name = name
@@ -10,40 +6,82 @@ class Settlement:
 
 	def calc(self, settlement):
 		if self == settlement:
-			return MAP_DIMENSIONS[0]*MAP_DIMENSIONS[1]
+			return max([self.x, self.y])**2
 		else:
 			return int(pow((pow((self.x - settlement.x), 2)+pow((self.y - settlement.y), 2)), 0.5))  # Geometric distance (a**2 + b**2 = c**2)
 
 
-def firstlink():
-	"""Finds the two closest settlements"""
-	xmin = MAP_DIMENSIONS[0]
-	ymin = MAP_DIMENSIONS[1]
-	shortest = xmin * ymin
-	for i in range(len(SETTLEMENTS)):
-		for j in range(i + 1, len(SETTLEMENTS)):
-			if 0 < distance_matrix[i][j] < shortest or 0 < distance_matrix[j][i] < shortest:
-				xmin = i
-				ymin = j
-				shortest = distance_matrix[i][j]
-	connection_matrix[xmin][ymin] = 1
-	connection_matrix[ymin][xmin] = 1
-	trade_network.append(xmin)
-	trade_network.append(ymin)
+class Network:
+	def __init__(self, list_of_settlements=()):  # TODO: Check for list/tuple implementation issues. Shouldn't be a problem, therefore it might be.
+		self.everyone = list_of_settlements
+		self.size = len(list_of_settlements)
+		self.map_size = [max([i.x for i in list_of_settlements]), max([i.y for i in list_of_settlements])]
+		self.dists = []
+		self.links = []
+		self.members = []
+		for i in range(len(list_of_settlements)):
+			link_row = []
+			dist_row = []
+			for j in range(len(list_of_settlements)):
+				link_row.append(0)
+				dist_row.append(list_of_settlements[i].calc(list_of_settlements[j]))
+			self.links.append(link_row)
+			self.dists.append(dist_row)
 
+	def begin(self):
+		x_index = self.map_size[0]
+		y_index = self.map_size[1]
+		shortest = x_index*y_index
+		for i in range(self.size):
+			for j in range(i+1, self.size):
+				if 0 < self.dists[i][j] < shortest or 0 < self.dists[j][i] < shortest:
+					x_index = i
+					y_index = j
+					shortest = self.dists[i][j]
+				else:
+					pass
+		self.links[x_index][y_index] = 1
+		self.links[y_index][x_index] = 1
+		self.members.append(x_index)
+		self.members.append(y_index)
 
-def addlinks():
-	"""Rework trade network and the connection matrix as an object with this as a method?"""
-	candidates = []
-	for i in trade_network:
-		for j in list(set(range(len(SETTLEMENTS))) - set(trade_network)):  # Clunky
-			if distance_matrix[i][j] == min([distance_matrix[i][j] for j in list(set(range(len(SETTLEMENTS))) - set(trade_network))]):  # Surely there's a cleaner way to do this?
-				candidates.append([i, j, distance_matrix[i][j]])
-	for i in candidates:
-		if i[2] == min([j[2] for j in candidates]):
-			trade_network.append(i[1])
-			connection_matrix[i[0]][i[1]] = 1
-			connection_matrix[i[1]][i[0]] = 1
+	def build(self):
+		while set(range(self.size))-set(self.members) != set(self.members)-set(range(self.size)):  # Probably excessive, but while loops make me paranoid
+			candidates = []
+			for i in self.members:
+				for j in set(range(self.size))-set(self.members):  # Surely there's a cleaner way to narrow the list?
+					if self.dists[i][j] == min([self.dists[i][j] for j in set(range(self.size))-set(self.members)]):
+						candidates.append([i, j, self.dists[i][j]])
+					else:
+						pass
+			for i in candidates:
+				if i[2] == min([j[2] for j in candidates]):
+					self.members.append(i[1])
+					self.links[i[0]][i[1]] = 1
+					self.links[i[1]][i[0]] = 1
+					break  # This way, if there's a tie, it treats the first one it encounters as the shorter one.
+				else:
+					pass
+
+	def print(self, mode="distances"):
+		if mode.lower() == "links":
+			for i in list(set(self.members)):
+				print(self.links[i])
+		elif mode.lower() == "names":
+			for i in range(self.size):
+				row = self.everyone[i].name + ":"
+				for j in range(self.size):
+					if self.links[i][j] == 1:
+						row += "	" + self.everyone[j].name
+					else:
+						pass
+				print(row)
+		else:
+			for i in range(self.size):
+				row = []
+				for j in range(self.size):
+					row.append(self.dists[i][j]*self.links[i][j])
+				print(row)
 
 
 Sanctuary = Settlement("Sanctuary", 134.5, 925.5)
@@ -109,32 +147,11 @@ SETTLEMENTS = (
 	WarwickHomestead
 )
 
-MAP_DIMENSIONS = (max([i.x for i in SETTLEMENTS]), max([j.y for j in SETTLEMENTS]))
-trade_network = []  # Tracks members of network by their index in the SETTLEMENTS tuple
-connection_matrix = []
-distance_matrix = []
-for i in range(len(SETTLEMENTS)):  # Builds connection and distance matrices
-	row1 = []
-	row2 = []
-	for j in range(len(SETTLEMENTS)):
-		row1.append(0)
-		row2.append(SETTLEMENTS[i].calc(SETTLEMENTS[j]))
-	connection_matrix.append(row1)
-	distance_matrix.append(row2)
 
+trade_network = Network(SETTLEMENTS)
+trade_network.begin()
+trade_network.build()
 
-firstlink()
-for i in range(len(SETTLEMENTS)-2):  # 2 less than the total number off settlements, as two have already been placed in the network.
-	addlinks()
-
-for i in connection_matrix:  # The graph, as represented by an edge matrix. Columns/Rows follow the same order as the SETTLEMENTS tuple at the beginning of the script.
-	print(i)
-
-for i in range(len(SETTLEMENTS)):  # The graph, as represented by listing each settlement followed by all settlements connected to it.
-	row = SETTLEMENTS[i].name
-	row += ":"
-	for j in range(len(connection_matrix[i])):
-		if connection_matrix[i][j] == 1:
-			row += "	"
-			row += SETTLEMENTS[j].name
-	print(row)
+trade_network.print("links")  # Print network as a connection matrix.
+trade_network.print("names")  # Print network as each settlement, followed by all settlements linked to it.
+trade_network.print("dists")  # Print network as a connection matrix, but with distances instead of 1's.
